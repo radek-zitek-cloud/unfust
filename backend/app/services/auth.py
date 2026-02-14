@@ -10,6 +10,11 @@ from app.models.user import PasswordResetToken, RefreshToken, User
 from app.security import hash_password, hash_token, verify_password
 
 
+def _utcnow() -> datetime:
+    """Return current UTC time as naive datetime (SQLite-compatible)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
 class AuthService:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -56,7 +61,7 @@ class AuthService:
         db_token = RefreshToken(
             user_id=user_id,
             token_hash=hash_token(raw_token),
-            expires_at=datetime.now(timezone.utc)
+            expires_at=_utcnow()
             + timedelta(days=settings.jwt_refresh_token_expire_days),
         )
         self.db.add(db_token)
@@ -69,7 +74,7 @@ class AuthService:
             select(RefreshToken).where(
                 RefreshToken.token_hash == token_hash_value,
                 RefreshToken.revoked == False,
-                RefreshToken.expires_at > datetime.now(timezone.utc),
+                RefreshToken.expires_at > _utcnow(),
             )
         )
         db_token = result.scalar_one_or_none()
@@ -112,7 +117,7 @@ class AuthService:
             await self.revoke_all_refresh_tokens(db_token.user_id)
             return None
 
-        if db_token.expires_at < datetime.now(timezone.utc):
+        if db_token.expires_at < _utcnow():
             return None
 
         # Revoke old token
@@ -144,7 +149,7 @@ class AuthService:
         db_token = PasswordResetToken(
             user_id=user.id,
             token_hash=hash_token(raw_token),
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+            expires_at=_utcnow() + timedelta(hours=1),
         )
         self.db.add(db_token)
         await self.db.commit()
@@ -156,7 +161,7 @@ class AuthService:
             select(PasswordResetToken).where(
                 PasswordResetToken.token_hash == token_hash_value,
                 PasswordResetToken.used == False,
-                PasswordResetToken.expires_at > datetime.now(timezone.utc),
+                PasswordResetToken.expires_at > _utcnow(),
             )
         )
         db_token = result.scalar_one_or_none()
