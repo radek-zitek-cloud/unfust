@@ -1,9 +1,11 @@
 import {
   Button,
   Divider,
+  Grid,
   Paper,
   PasswordInput,
   Stack,
+  Text,
   TextInput,
   Textarea,
   Title,
@@ -49,7 +51,7 @@ export default function ProfilePage() {
       notifications.show({
         title: "Profile updated",
         message: "Your profile has been saved.",
-        color: "green",
+        color: "teal",
       });
     } catch (err: any) {
       notifications.show({
@@ -61,7 +63,7 @@ export default function ProfilePage() {
   };
 
   const handlePasswordSubmit = async (
-    values: typeof passwordForm.values
+    values: typeof passwordForm.values,
   ) => {
     try {
       await changePassword(values.currentPassword, values.newPassword);
@@ -69,7 +71,7 @@ export default function ProfilePage() {
       notifications.show({
         title: "Password changed",
         message: "Your password has been updated.",
-        color: "green",
+        color: "teal",
       });
     } catch (err: any) {
       notifications.show({
@@ -81,62 +83,91 @@ export default function ProfilePage() {
   };
 
   return (
-    <Stack gap="xl">
-      <div>
-        <Title order={2}>Profile</Title>
-        <Paper withBorder p="md" mt="md" maw={500}>
-          <form onSubmit={profileForm.onSubmit(handleProfileSubmit)}>
-            <TextInput label="Email" value={user?.email} disabled />
-            <TextInput
-              label="First name"
-              mt="md"
-              {...profileForm.getInputProps("firstName")}
-            />
-            <TextInput
-              label="Last name"
-              mt="md"
-              {...profileForm.getInputProps("lastName")}
-            />
-            <Textarea
-              label="Notes"
-              mt="md"
-              autosize
-              minRows={3}
-              {...profileForm.getInputProps("notes")}
-            />
-            <Button type="submit" mt="md">
-              Save changes
-            </Button>
-          </form>
-        </Paper>
-      </div>
+    <>
+      <Title order={2} fw={700}>
+        Profile
+      </Title>
+      <Text c="dimmed" size="sm" mt={4} mb="xl">
+        Manage your account settings
+      </Text>
 
-      <Divider />
+      <Grid gutter="xl">
+        <Grid.Col span={{ base: 12, md: 7 }}>
+          <Paper withBorder p="lg" radius="md">
+            <Text fw={600} mb="md">
+              Personal information
+            </Text>
+            <form onSubmit={profileForm.onSubmit(handleProfileSubmit)}>
+              <Stack gap="md">
+                <TextInput
+                  label="Email"
+                  value={user?.email}
+                  disabled
+                  styles={{
+                    input: { fontFamily: "monospace", fontSize: 13 },
+                  }}
+                />
+                <Grid>
+                  <Grid.Col span={6}>
+                    <TextInput
+                      label="First name"
+                      {...profileForm.getInputProps("firstName")}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={6}>
+                    <TextInput
+                      label="Last name"
+                      {...profileForm.getInputProps("lastName")}
+                    />
+                  </Grid.Col>
+                </Grid>
+                <Textarea
+                  label="Notes"
+                  autosize
+                  minRows={3}
+                  maxRows={8}
+                  {...profileForm.getInputProps("notes")}
+                />
+                <Button type="submit" w="fit-content">
+                  Save changes
+                </Button>
+              </Stack>
+            </form>
+          </Paper>
+        </Grid.Col>
 
-      <div>
-        <Title order={3}>Change password</Title>
-        <Paper withBorder p="md" mt="md" maw={500}>
-          <form onSubmit={passwordForm.onSubmit(handlePasswordSubmit)}>
-            <PasswordInput
-              label="Current password"
-              {...passwordForm.getInputProps("currentPassword")}
-            />
-            <PasswordInput
-              label="New password"
-              mt="md"
-              {...passwordForm.getInputProps("newPassword")}
-            />
-            <PasswordInput
-              label="Confirm new password"
-              mt="md"
-              {...passwordForm.getInputProps("confirmPassword")}
-            />
-            <Button type="submit" mt="md">
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <Paper withBorder p="lg" radius="md">
+            <Text fw={600} mb="md">
               Change password
-            </Button>
-          </form>
-        </Paper>
-      </div>
-    </Stack>
+            </Text>
+            <form onSubmit={passwordForm.onSubmit(handlePasswordSubmit)}>
+              <Stack gap="md">
+                <PasswordInput
+                  label="Current password"
+                  {...passwordForm.getInputProps("currentPassword")}
+                />
+                <Divider
+                  label="New password"
+                  labelPosition="left"
+                  variant="dashed"
+                />
+                <PasswordInput
+                  label="New password"
+                  {...passwordForm.getInputProps("newPassword")}
+                />
+                <PasswordInput
+                  label="Confirm new password"
+                  {...passwordForm.getInputProps("confirmPassword")}
+                />
+                <Button type="submit" variant="light" w="fit-content">
+                  Change password
+                </Button>
+              </Stack>
+            </form>
+          </Paper>
+        </Grid.Col>
+      </Grid>
+    </>
   );
 }

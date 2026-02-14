@@ -1,31 +1,39 @@
 import {
+  ActionIcon,
   AppShell,
   Avatar,
   Badge,
-  Box,
   Burger,
+  Divider,
   Group,
-  Indicator,
   LoadingOverlay,
   Menu,
   NavLink,
   Text,
-  Title,
-  UnstyledButton,
+  Tooltip,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useEffect, useState } from "react";
-import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router";
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router";
 import { fetchHealth, type HealthResponse } from "~/lib/api";
 import { useAuth } from "~/lib/auth";
+import { Logo } from "~/components/Logo";
 
 export default function DashboardLayout() {
   const { user, isLoading, logout } = useAuth();
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle, close }] = useDisclosure();
   const navigate = useNavigate();
   const location = useLocation();
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [backendOk, setBackendOk] = useState(true);
+  const { toggleColorScheme } = useMantineColorScheme();
 
   const pollHealth = useCallback(async () => {
     try {
@@ -59,94 +67,158 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
+  const navItems = [
+    { to: "/dashboard", label: "Dashboard", icon: "◈" },
+    { to: "/dashboard/profile", label: "Profile", icon: "◉" },
+  ];
+
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: 56 }}
       navbar={{
-        width: 250,
+        width: 240,
         breakpoint: "sm",
         collapsed: { mobile: !opened },
       }}
-      footer={{ height: 30 }}
-      padding="md"
+      footer={{ height: 32 }}
+      padding="lg"
     >
-      <AppShell.Header>
+      <AppShell.Header
+        style={{
+          borderBottom: "1px solid var(--mantine-color-default-border)",
+        }}
+      >
         <Group h="100%" px="md" justify="space-between">
-          <Group>
+          <Group gap="sm">
             <Burger
               opened={opened}
               onClick={toggle}
               hiddenFrom="sm"
               size="sm"
             />
-            <Title order={3}>unfust</Title>
+            <Logo size="sm" />
           </Group>
 
-          <Menu shadow="md" width={200}>
-            <Menu.Target>
-              <UnstyledButton>
-                <Group gap="xs">
-                  <Avatar color="blue" radius="xl" size="sm">
+          <Group gap="xs">
+            <Tooltip label="Toggle theme" position="bottom">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="lg"
+                onClick={toggleColorScheme}
+                aria-label="Toggle color scheme"
+              >
+                <Text size="sm">◐</Text>
+              </ActionIcon>
+            </Tooltip>
+
+            <Menu shadow="md" width={200} position="bottom-end">
+              <Menu.Target>
+                <ActionIcon variant="subtle" color="gray" size="lg" radius="xl">
+                  <Avatar
+                    size="sm"
+                    radius="xl"
+                    color="teal"
+                    variant="filled"
+                    style={{ cursor: "pointer" }}
+                  >
                     {initials}
                   </Avatar>
-                  <Text size="sm" visibleFrom="sm">
-                    {user.first_name} {user.last_name}
-                  </Text>
-                </Group>
-              </UnstyledButton>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item component={Link} to="/dashboard/profile">
-                Profile
-              </Menu.Item>
-              <Menu.Divider />
-              <Menu.Item color="red" onClick={handleLogout}>
-                Logout
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Label>
+                  {user.first_name} {user.last_name}
+                </Menu.Label>
+                <Menu.Item
+                  component={Link}
+                  to="/dashboard/profile"
+                  onClick={close}
+                >
+                  Profile
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item color="red" onClick={handleLogout}>
+                  Sign out
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
-        <NavLink
-          component={Link}
-          to="/dashboard"
-          label="Dashboard"
-          active={location.pathname === "/dashboard"}
-        />
-        <NavLink
-          component={Link}
-          to="/dashboard/profile"
-          label="Profile"
-          active={location.pathname === "/dashboard/profile"}
-        />
+      <AppShell.Navbar p="sm">
+        <AppShell.Section grow>
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              component={Link}
+              to={item.to}
+              label={item.label}
+              leftSection={
+                <Text size="xs" c="dimmed" ff="monospace">
+                  {item.icon}
+                </Text>
+              }
+              active={location.pathname === item.to}
+              onClick={close}
+              style={{ borderRadius: "var(--mantine-radius-md)" }}
+              mb={2}
+            />
+          ))}
+        </AppShell.Section>
+
+        <Divider my="xs" />
+
+        <AppShell.Section>
+          <Group gap="xs" px="xs" pb="xs">
+            <Badge
+              size="xs"
+              variant="light"
+              color={user.is_admin ? "teal" : "gray"}
+            >
+              {user.is_admin ? "Admin" : "User"}
+            </Badge>
+            {health && (
+              <Badge size="xs" variant="dot" color="dimmed">
+                v{health.version}
+              </Badge>
+            )}
+          </Group>
+        </AppShell.Section>
       </AppShell.Navbar>
 
       <AppShell.Main>
         <Outlet />
       </AppShell.Main>
 
-      <AppShell.Footer p={4}>
+      <AppShell.Footer
+        style={{
+          borderTop: "1px solid var(--mantine-color-default-border)",
+        }}
+      >
         <Group justify="space-between" px="md" h="100%">
-          <Group gap="xs">
-            <Indicator
-              color={backendOk ? "green" : "red"}
-              size={8}
-              processing={!backendOk}
-            >
-              <Box />
-            </Indicator>
-            <Text size="xs" c="dimmed">
-              {backendOk ? "Connected" : "Backend unreachable"}
+          <Group gap={6}>
+            <div
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                backgroundColor: backendOk
+                  ? "var(--mantine-color-teal-6)"
+                  : "var(--mantine-color-red-6)",
+                boxShadow: backendOk
+                  ? "0 0 6px var(--mantine-color-teal-6)"
+                  : "0 0 6px var(--mantine-color-red-6)",
+              }}
+            />
+            <Text size="xs" c="dimmed" ff="monospace">
+              {backendOk ? "connected" : "unreachable"}
             </Text>
           </Group>
-          <Text size="xs" c="dimmed">
+          <Text size="xs" c="dimmed" ff="monospace">
             {health ? `v${health.version}` : "—"}
           </Text>
-          <Badge size="xs" variant="light">
-            {user.is_admin ? "Admin" : "User"}
-          </Badge>
         </Group>
       </AppShell.Footer>
     </AppShell>

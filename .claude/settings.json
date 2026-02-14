@@ -3,15 +3,23 @@
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "command": "case \"$CLAUDE_FILE_PATH\" in *.py) cd /home/radek/Code/unfust/backend && uv run ruff format --quiet \"$CLAUDE_FILE_PATH\" 2>/dev/null || true ;; esac",
-        "description": "Auto-format Python files with ruff on edit"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *.py) cd /home/radek/Code/unfust/backend && uv run ruff format --quiet \"$CLAUDE_FILE_PATH\" 2>/dev/null || true ;; esac"
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write",
-        "command": "case \"$(basename \"$CLAUDE_FILE_PATH\")\" in .env) echo 'BLOCK: Do not edit .env directly — use .env.example as template' >&2; exit 1 ;; esac",
-        "description": "Block edits to .env file"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "case \"$(basename \"$CLAUDE_FILE_PATH\")\" in .env) echo 'BLOCK: Do not edit .env directly — use .env.example as template' >&2; exit 2 ;; esac"
+          }
+        ]
       }
     ]
   }

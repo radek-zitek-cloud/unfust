@@ -4,14 +4,15 @@ import {
   Container,
   Paper,
   PasswordInput,
+  Stack,
   Text,
-  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { resetPassword } from "~/lib/api";
+import { Logo } from "~/components/Logo";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -42,62 +43,61 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <Container size={420} my={40}>
-        <Title ta="center">Invalid link</Title>
-        <Text c="dimmed" ta="center" mt="md">
-          This password reset link is invalid or has expired.
-        </Text>
-        <Anchor
-          component={Link}
-          to="/forgot-password"
-          size="sm"
-          mt="md"
-          display="block"
-          ta="center"
-        >
-          Request a new link
-        </Anchor>
+      <Container size={420} pt={80} pb={40}>
+        <Stack align="center" gap={4} mb="xl">
+          <Logo size="lg" />
+        </Stack>
+        <Paper withBorder shadow="sm" p="xl" radius="md">
+          <Stack align="center" gap="md">
+            <Text fw={600}>Invalid link</Text>
+            <Text c="dimmed" ta="center" size="sm">
+              This password reset link is invalid or has expired.
+            </Text>
+            <Anchor component={Link} to="/forgot-password" size="sm" fw={600}>
+              Request a new link
+            </Anchor>
+          </Stack>
+        </Paper>
       </Container>
     );
   }
 
   return (
-    <Container size={420} my={40}>
-      <Title ta="center">Reset your password</Title>
+    <Container size={420} pt={80} pb={40}>
+      <Stack align="center" gap={4} mb="xl">
+        <Logo size="lg" />
+        <Text c="dimmed" size="sm">
+          Choose a new password
+        </Text>
+      </Stack>
 
-      <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+      <Paper withBorder shadow="sm" p="xl" radius="md">
         {success ? (
-          <>
+          <Stack align="center" gap="md">
             <Text ta="center">Password reset successfully!</Text>
-            <Anchor
-              component={Link}
-              to="/login"
-              size="sm"
-              mt="md"
-              display="block"
-              ta="center"
-            >
+            <Anchor component={Link} to="/login" size="sm" fw={600}>
               Go to login
             </Anchor>
-          </>
+          </Stack>
         ) : (
           <form onSubmit={form.onSubmit(handleSubmit)}>
-            <PasswordInput
-              label="New password"
-              placeholder="Minimum 8 characters"
-              required
-              {...form.getInputProps("password")}
-            />
-            <PasswordInput
-              label="Confirm password"
-              placeholder="Repeat password"
-              required
-              mt="md"
-              {...form.getInputProps("confirmPassword")}
-            />
-            <Button type="submit" fullWidth mt="xl">
-              Reset password
-            </Button>
+            <Stack gap="md">
+              <PasswordInput
+                label="New password"
+                placeholder="Minimum 8 characters"
+                required
+                {...form.getInputProps("password")}
+              />
+              <PasswordInput
+                label="Confirm password"
+                placeholder="Repeat password"
+                required
+                {...form.getInputProps("confirmPassword")}
+              />
+              <Button type="submit" fullWidth>
+                Reset password
+              </Button>
+            </Stack>
           </form>
         )}
       </Paper>

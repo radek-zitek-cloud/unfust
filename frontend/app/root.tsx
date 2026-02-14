@@ -14,6 +14,7 @@ import {
 
 import type { Route } from "./+types/root";
 import { AuthProvider } from "~/lib/auth";
+import { theme } from "~/theme";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -25,6 +26,10 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap",
   },
 ];
 
@@ -39,13 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
-        <MantineProvider
-          defaultColorScheme="auto"
-          theme={{
-            fontFamily:
-              "Inter, ui-sans-serif, system-ui, sans-serif",
-          }}
-        >
+        <MantineProvider defaultColorScheme="auto" theme={theme}>
           <Notifications position="top-right" />
           {children}
         </MantineProvider>
@@ -81,11 +80,29 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main style={{ paddingTop: 64, padding: 16, maxWidth: 800, margin: "0 auto" }}>
-      <h1>{message}</h1>
-      <p>{details}</p>
+    <main
+      style={{
+        paddingTop: 80,
+        padding: 24,
+        maxWidth: 640,
+        margin: "0 auto",
+        fontFamily: "Inter, sans-serif",
+      }}
+    >
+      <h1 style={{ fontSize: 48, fontWeight: 800, margin: 0 }}>{message}</h1>
+      <p style={{ color: "#868e96", marginTop: 8 }}>{details}</p>
       {stack && (
-        <pre style={{ width: "100%", padding: 16, overflow: "auto" }}>
+        <pre
+          style={{
+            width: "100%",
+            padding: 16,
+            overflow: "auto",
+            fontSize: 13,
+            fontFamily: "JetBrains Mono, monospace",
+            background: "#f1f3f5",
+            borderRadius: 8,
+          }}
+        >
           <code>{stack}</code>
         </pre>
       )}

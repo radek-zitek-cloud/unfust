@@ -2,15 +2,17 @@ import {
   Anchor,
   Button,
   Container,
+  Group,
   Paper,
   PasswordInput,
-  TextInput,
-  Title,
+  Stack,
   Text,
+  TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { Link, useNavigate } from "react-router";
+import { Logo } from "~/components/Logo";
 import { useAuth } from "~/lib/auth";
 
 export default function RegisterPage() {
@@ -41,7 +43,7 @@ export default function RegisterPage() {
         values.email,
         values.firstName,
         values.lastName,
-        values.password
+        values.password,
       );
       navigate("/dashboard");
     } catch (err: any) {
@@ -54,56 +56,62 @@ export default function RegisterPage() {
   };
 
   return (
-    <Container size={420} my={40}>
-      <Title ta="center">Create an account</Title>
-      <Text c="dimmed" size="sm" ta="center" mt={5}>
+    <Container size={420} pt={80} pb={40}>
+      <Stack align="center" gap={4} mb="xl">
+        <Logo size="lg" />
+        <Text c="dimmed" size="sm">
+          Create your account
+        </Text>
+      </Stack>
+
+      <Paper withBorder shadow="sm" p="xl" radius="md">
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack gap="md">
+            <TextInput
+              label="Email"
+              placeholder="you@example.com"
+              required
+              {...form.getInputProps("email")}
+            />
+            <Group grow>
+              <TextInput
+                label="First name"
+                placeholder="John"
+                required
+                {...form.getInputProps("firstName")}
+              />
+              <TextInput
+                label="Last name"
+                placeholder="Doe"
+                required
+                {...form.getInputProps("lastName")}
+              />
+            </Group>
+            <PasswordInput
+              label="Password"
+              placeholder="Minimum 8 characters"
+              required
+              {...form.getInputProps("password")}
+            />
+            <PasswordInput
+              label="Confirm password"
+              placeholder="Repeat password"
+              required
+              {...form.getInputProps("confirmPassword")}
+            />
+            <Button type="submit" fullWidth>
+              Register
+            </Button>
+          </Stack>
+        </form>
+      </Paper>
+
+      <Text ta="center" size="sm" mt="lg" c="dimmed">
         Already have an account?{" "}
-        <Anchor component={Link} to="/login" size="sm">
+        <Anchor component={Link} to="/login" size="sm" fw={600}>
           Sign in
         </Anchor>
       </Text>
-
-      <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <TextInput
-            label="Email"
-            placeholder="you@example.com"
-            required
-            {...form.getInputProps("email")}
-          />
-          <TextInput
-            label="First name"
-            placeholder="John"
-            required
-            mt="md"
-            {...form.getInputProps("firstName")}
-          />
-          <TextInput
-            label="Last name"
-            placeholder="Doe"
-            required
-            mt="md"
-            {...form.getInputProps("lastName")}
-          />
-          <PasswordInput
-            label="Password"
-            placeholder="Minimum 8 characters"
-            required
-            mt="md"
-            {...form.getInputProps("password")}
-          />
-          <PasswordInput
-            label="Confirm password"
-            placeholder="Repeat password"
-            required
-            mt="md"
-            {...form.getInputProps("confirmPassword")}
-          />
-          <Button type="submit" fullWidth mt="xl">
-            Register
-          </Button>
-        </form>
-      </Paper>
     </Container>
   );
 }
