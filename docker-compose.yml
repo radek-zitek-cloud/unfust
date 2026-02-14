@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      target: production
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/srv/backend/data
+    networks:
+      - unfust-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - unfust-net
+    restart: unless-stopped
+
+networks:
+  unfust-net:
+    driver: bridge
