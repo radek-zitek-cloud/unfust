@@ -11,6 +11,7 @@ import {
   NavLink,
   Text,
   Tooltip,
+  useComputedColorScheme,
   useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -26,6 +27,50 @@ import { fetchHealth, type HealthResponse } from "~/lib/api";
 import { useAuth } from "~/lib/auth";
 import { Logo } from "~/components/Logo";
 
+function IconSun({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  );
+}
+
+function IconMoon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+function IconDashboard({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="9" rx="1" />
+      <rect x="14" y="3" width="7" height="5" rx="1" />
+      <rect x="14" y="12" width="7" height="9" rx="1" />
+      <rect x="3" y="16" width="7" height="5" rx="1" />
+    </svg>
+  );
+}
+
+function IconUser({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
 export default function DashboardLayout() {
   const { user, isLoading, logout } = useAuth();
   const [opened, { toggle, close }] = useDisclosure();
@@ -34,6 +79,7 @@ export default function DashboardLayout() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [backendOk, setBackendOk] = useState(true);
   const { toggleColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme("light");
 
   const pollHealth = useCallback(async () => {
     try {
@@ -68,8 +114,8 @@ export default function DashboardLayout() {
   };
 
   const navItems = [
-    { to: "/dashboard", label: "Dashboard", icon: "◈" },
-    { to: "/dashboard/profile", label: "Profile", icon: "◉" },
+    { to: "/dashboard", label: "Dashboard", icon: <IconDashboard size={18} /> },
+    { to: "/dashboard/profile", label: "Profile", icon: <IconUser size={18} /> },
   ];
 
   return (
@@ -108,7 +154,7 @@ export default function DashboardLayout() {
                 onClick={toggleColorScheme}
                 aria-label="Toggle color scheme"
               >
-                <Text size="sm">◐</Text>
+                {computedColorScheme === "dark" ? <IconSun size={18} /> : <IconMoon size={18} />}
               </ActionIcon>
             </Tooltip>
 
@@ -155,11 +201,7 @@ export default function DashboardLayout() {
               component={Link}
               to={item.to}
               label={item.label}
-              leftSection={
-                <Text size="xs" c="dimmed" ff="monospace">
-                  {item.icon}
-                </Text>
-              }
+              leftSection={item.icon}
               active={location.pathname === item.to}
               onClick={close}
               style={{ borderRadius: "var(--mantine-radius-md)" }}
