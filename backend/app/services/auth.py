@@ -172,9 +172,7 @@ class AuthService:
         db_token.used = True
 
         # Update password
-        result = await self.db.execute(
-            select(User).where(User.id == db_token.user_id)
-        )
+        result = await self.db.execute(select(User).where(User.id == db_token.user_id))
         user = result.scalar_one()
         user.password_hash = hash_password(new_password)
         await self.db.commit()
