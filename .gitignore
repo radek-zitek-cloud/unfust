@@ -1,0 +1,19 @@
+# Environment
+.env
+
+# Database
+data/*.db
+data/*.db-journal
+data/*.db-wal
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+
+# Build artifacts
+frontend/build/
+frontend/.react-router/
