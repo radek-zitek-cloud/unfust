@@ -23,6 +23,7 @@ export default function ProfilePage() {
       firstName: user?.first_name || "",
       lastName: user?.last_name || "",
       notes: user?.notes || "",
+      location: user?.location || "",
     },
   });
 
@@ -46,6 +47,7 @@ export default function ProfilePage() {
         first_name: values.firstName,
         last_name: values.lastName,
         notes: values.notes || null,
+        location: values.location || null,
       });
       await refreshUser();
       notifications.show({
@@ -121,6 +123,12 @@ export default function ProfilePage() {
                     />
                   </Grid.Col>
                 </Grid>
+                <TextInput
+                  label="Location"
+                  description="City name for weather widget (e.g., London, New York)"
+                  placeholder="Enter your city"
+                  {...profileForm.getInputProps("location")}
+                />
                 <Textarea
                   label="Notes"
                   autosize

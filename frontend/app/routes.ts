@@ -9,6 +9,7 @@ export default [
   layout("routes/dashboard/layout.tsx", [
     route("dashboard", "routes/dashboard/index.tsx"),
     route("dashboard/profile", "routes/dashboard/profile.tsx"),
+    route("habits", "routes/habits/index.tsx"),
   ]),
   route("*", "routes/catch-all.tsx"),
 ] satisfies RouteConfig;

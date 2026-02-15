@@ -18,13 +18,17 @@ dependencies = [
     "aiosmtplib>=3.0",
     "slowapi>=0.1",
     "email-validator>=2.0",
+    "httpx>=0.28",
+    "feedparser>=6.0",
+    "psutil>=6.0",
+    "docker>=7.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.25",
-    "httpx>=0.28",
+    "respx>=0.21",
 ]
 
 [dependency-groups]
