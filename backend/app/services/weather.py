@@ -43,7 +43,7 @@ async def fetch_weather(city: str, units: str = "metric") -> dict:
         except httpx.TimeoutException as e:
             raise ValueError("Weather service timeout") from e
         except httpx.RequestError as e:
-            raise ValueError(f"Failed to connect to weather service: {str(e)}") from e
+            raise ValueError("Failed to connect to weather service") from e
 
     result = {
         "city": data["name"],

@@ -44,11 +44,11 @@ async def test_weather_city_not_found(monkeypatch):
         "app.services.weather.settings.openweathermap_api_key", "test_key"
     )
     _cache.clear()
-    
+
     respx.get("https://api.openweathermap.org/data/2.5/weather").mock(
         return_value=httpx.Response(404, json={"message": "city not found"})
     )
-    
+
     with pytest.raises(ValueError, match="City 'InvalidCity' not found"):
         await fetch_weather("InvalidCity")
 
@@ -60,11 +60,11 @@ async def test_weather_invalid_api_key(monkeypatch):
         "app.services.weather.settings.openweathermap_api_key", "invalid_key"
     )
     _cache.clear()
-    
+
     respx.get("https://api.openweathermap.org/data/2.5/weather").mock(
         return_value=httpx.Response(401, json={"message": "Invalid API key"})
     )
-    
+
     with pytest.raises(ValueError, match="Invalid API key"):
         await fetch_weather("Prague")
 
@@ -76,11 +76,11 @@ async def test_weather_service_error(monkeypatch):
         "app.services.weather.settings.openweathermap_api_key", "test_key"
     )
     _cache.clear()
-    
+
     respx.get("https://api.openweathermap.org/data/2.5/weather").mock(
         return_value=httpx.Response(500, json={"message": "Internal server error"})
     )
-    
+
     with pytest.raises(ValueError, match="Weather service error: 500"):
         await fetch_weather("Prague")
 
@@ -92,11 +92,11 @@ async def test_weather_timeout(monkeypatch):
         "app.services.weather.settings.openweathermap_api_key", "test_key"
     )
     _cache.clear()
-    
+
     respx.get("https://api.openweathermap.org/data/2.5/weather").mock(
         side_effect=httpx.TimeoutException("Request timeout")
     )
-    
+
     with pytest.raises(ValueError, match="Weather service timeout"):
         await fetch_weather("Prague")
 
@@ -108,11 +108,11 @@ async def test_weather_connection_error(monkeypatch):
         "app.services.weather.settings.openweathermap_api_key", "test_key"
     )
     _cache.clear()
-    
+
     respx.get("https://api.openweathermap.org/data/2.5/weather").mock(
         side_effect=httpx.ConnectError("Connection failed")
     )
-    
+
     with pytest.raises(ValueError, match="Failed to connect to weather service"):
         await fetch_weather("Prague")
 
@@ -124,7 +124,7 @@ async def test_weather_successful_fetch(monkeypatch):
         "app.services.weather.settings.openweathermap_api_key", "test_key"
     )
     _cache.clear()
-    
+
     respx.get("https://api.openweathermap.org/data/2.5/weather").mock(
         return_value=httpx.Response(
             200,
@@ -140,7 +140,7 @@ async def test_weather_successful_fetch(monkeypatch):
             },
         )
     )
-    
+
     result = await fetch_weather("Prague")
     assert result["city"] == "Prague"
     assert result["temp"] == 15.5
