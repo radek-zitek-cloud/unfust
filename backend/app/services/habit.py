@@ -270,12 +270,19 @@ class HabitService:
         target_count: int,
     ) -> int:
         """Streak = consecutive rolling windows with >= target_count completions."""
+        # Early exit for empty logs
+        if not logs_by_date:
+            return 0
+
         streak = 0
         window_end = today
+        # Get earliest log date as a safety boundary
+        earliest_log_date = min(logs_by_date.keys())
 
         # Check if current window is complete
         while True:
             window_start = window_end - timedelta(days=window_days - 1)
+
             completions = sum(
                 count
                 for d, count in logs_by_date.items()
@@ -285,6 +292,11 @@ class HabitService:
             if completions >= target_count:
                 streak += 1
                 window_end = window_start - timedelta(days=1)
+
+                # Safety check: stop if next window would end before earliest log
+                # This prevents infinite loop when all historical windows meet target
+                if window_end < earliest_log_date:
+                    break
             else:
                 break
 

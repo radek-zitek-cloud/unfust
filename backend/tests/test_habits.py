@@ -236,3 +236,73 @@ async def test_get_challenges(auth_client: AsyncClient):
     # Should have auto-generated challenges
     data = resp.json()
     assert len(data) >= 0  # May be empty initially or have generated ones
+
+
+@pytest.mark.asyncio
+async def test_weekly_habit_streak_with_no_logs(auth_client: AsyncClient):
+    """Test that weekly habit with no logs returns 0 streak without infinite loop."""
+    create_resp = await auth_client.post(
+        "/api/habits",
+        json={
+            "name": "Weekly Exercise",
+            "emoji": "🏋️",
+            "color": "#228be6",
+            "habit_type": "positive",
+            "frequency_type": "weekly",
+            "target_count": 3,
+        },
+    )
+    habit_id = create_resp.json()["id"]
+
+    # Get habit without any logs
+    resp = await auth_client.get(f"/api/habits/{habit_id}")
+    assert resp.status_code == 200
+    assert resp.json()["stats"]["current_streak"] == 0
+
+
+@pytest.mark.asyncio
+async def test_monthly_habit_streak_with_no_logs(auth_client: AsyncClient):
+    """Test that monthly habit with no logs returns 0 streak without infinite loop."""
+    create_resp = await auth_client.post(
+        "/api/habits",
+        json={
+            "name": "Monthly Goal",
+            "emoji": "🎯",
+            "color": "#40c057",
+            "habit_type": "positive",
+            "frequency_type": "monthly",
+            "target_count": 10,
+        },
+    )
+    habit_id = create_resp.json()["id"]
+
+    # Get habit without any logs
+    resp = await auth_client.get(f"/api/habits/{habit_id}")
+    assert resp.status_code == 200
+    assert resp.json()["stats"]["current_streak"] == 0
+
+
+@pytest.mark.asyncio
+async def test_weekly_habit_streak_calculation(auth_client: AsyncClient):
+    """Test that weekly habit streak is calculated correctly."""
+    create_resp = await auth_client.post(
+        "/api/habits",
+        json={
+            "name": "Weekly Reading",
+            "emoji": "📖",
+            "color": "#be4bdb",
+            "habit_type": "positive",
+            "frequency_type": "weekly",
+            "target_count": 3,
+        },
+    )
+    habit_id = create_resp.json()["id"]
+
+    # Log 3 completions (meets weekly target)
+    for _ in range(3):
+        await auth_client.post(f"/api/habits/{habit_id}/logs", json={})
+
+    # Get habit - should have streak of 1
+    resp = await auth_client.get(f"/api/habits/{habit_id}")
+    assert resp.status_code == 200
+    assert resp.json()["stats"]["current_streak"] == 1
