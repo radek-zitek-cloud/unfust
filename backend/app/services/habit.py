@@ -282,7 +282,7 @@ class HabitService:
         # Check if current window is complete
         while True:
             window_start = window_end - timedelta(days=window_days - 1)
-            
+
             completions = sum(
                 count
                 for d, count in logs_by_date.items()
@@ -292,7 +292,7 @@ class HabitService:
             if completions >= target_count:
                 streak += 1
                 window_end = window_start - timedelta(days=1)
-                
+
                 # Safety check: stop if next window would end before earliest log
                 # This prevents infinite loop when all historical windows meet target
                 if window_end < earliest_log_date:
