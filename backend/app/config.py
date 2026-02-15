@@ -31,5 +31,8 @@ class Settings(BaseSettings):
     # Frontend
     frontend_url: str = "http://localhost:5173"
 
+    # Widgets
+    openweathermap_api_key: str = ""
+
 
 settings = Settings()
