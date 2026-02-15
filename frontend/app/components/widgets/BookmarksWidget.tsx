@@ -17,6 +17,7 @@ import {
   deleteBookmark,
   getBookmarks,
 } from "~/lib/api";
+import type { WidgetComponentProps } from "./index";
 
 function IconPlus({ size = 14 }: { size?: number }) {
   return (
@@ -54,7 +55,7 @@ function IconTrash({ size = 14 }: { size?: number }) {
   );
 }
 
-export function BookmarksWidget() {
+export function BookmarksWidget({ config: _config }: WidgetComponentProps) {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [opened, { open, close }] = useDisclosure(false);
   const form = useForm({

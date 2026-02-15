@@ -155,17 +155,29 @@ export default function DashboardHome() {
             const def = widgetRegistry[w.type];
             if (!def) return null;
             const WidgetComponent = def.component;
+
+            const handleConfigChange = (newConfig: Record<string, any>) => {
+              const updated = widgets.map((widget) =>
+                widget.id === w.id ? { ...widget, config: newConfig } : widget
+              );
+              setWidgets(updated);
+              debouncedSave(updated);
+            };
+
             return (
               <div key={w.id}>
                 <WidgetCard
                   title={def.label}
                   onRemove={() => removeWidget(w.id)}
                 >
-                  <WidgetComponent config={w.config} />
+                  <WidgetComponent
+                    config={w.config}
+                    onConfigChange={handleConfigChange}
+                  />
                 </WidgetCard>
               </div>
             );
-          })}
+          })}          
         </ResponsiveGrid>
       )}
     </>

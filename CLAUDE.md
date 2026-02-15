@@ -53,3 +53,19 @@ Monorepo: `backend/` (Python 3.14, FastAPI, SQLAlchemy async, SQLite) + `fronten
 - System monitor Docker stats require `/var/run/docker.sock` mount
 - RSS feeds refresh every 15 minutes via background task
 - react-grid-layout v2: use `react-grid-layout/legacy` import path for component API
+
+## Database Rules (CRITICAL)
+**Never delete the database (`data/unfust.db`) without explicit user confirmation.**
+
+### Migration Best Practices
+- Always use Alembic for schema changes
+- When adding non-nullable columns to existing tables, use `server_default`:
+  ```python
+  op.add_column('table', sa.Column('col', sa.Integer(), server_default='0', nullable=False))
+  ```
+- If a migration fails:
+  1. Fix the migration script
+  2. Run `alembic downgrade -1` to revert
+  3. Re-run `alembic upgrade head`
+- Test migrations on a backup copy first if production data exists
+- Never use `rm data/unfust.db` as a migration fix

@@ -34,6 +34,8 @@ async def update_me(
         user.last_name = body.last_name
     if body.notes is not None:
         user.notes = body.notes
+    if body.location is not None:
+        user.location = body.location
     await db.commit()
     await db.refresh(user)
     return user

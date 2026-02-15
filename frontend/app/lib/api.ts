@@ -59,6 +59,7 @@ export interface UserProfile {
   is_active: boolean;
   is_admin: boolean;
   notes: string | null;
+  location: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -125,6 +126,7 @@ export async function updateProfile(data: {
   first_name?: string;
   last_name?: string;
   notes?: string | null;
+  location?: string | null;
 }): Promise<UserProfile> {
   const resp = await apiClient("/api/users/me", {
     method: "PATCH",

@@ -71,6 +71,15 @@ function IconUser({ size = 18 }: { size?: number }) {
   );
 }
 
+function IconHabits({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 export default function DashboardLayout() {
   const { user, isLoading, logout } = useAuth();
   const [opened, { toggle, close }] = useDisclosure();
@@ -115,6 +124,7 @@ export default function DashboardLayout() {
 
   const navItems = [
     { to: "/dashboard", label: "Dashboard", icon: <IconDashboard size={18} /> },
+    { to: "/habits", label: "Habits", icon: <IconHabits size={18} /> },
     { to: "/dashboard/profile", label: "Profile", icon: <IconUser size={18} /> },
   ];
 

@@ -1,11 +1,8 @@
 import { Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
+import type { WidgetComponentProps } from "./index";
 
-interface ClockWidgetProps {
-  config: { timezone?: string; format?: "12h" | "24h" };
-}
-
-export function ClockWidget({ config }: ClockWidgetProps) {
+export function ClockWidget({ config }: WidgetComponentProps) {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {

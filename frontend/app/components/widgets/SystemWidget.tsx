@@ -1,6 +1,7 @@
 import { Badge, Group, Loader, Progress, Stack, Text } from "@mantine/core";
 import { useCallback, useEffect, useState } from "react";
 import { type SystemStats, fetchSystemStats } from "~/lib/api";
+import type { WidgetComponentProps } from "./index";
 
 function StatBar({
   label,
@@ -27,7 +28,7 @@ function StatBar({
   );
 }
 
-export function SystemWidget() {
+export function SystemWidget({ config: _config }: WidgetComponentProps) {
   const [stats, setStats] = useState<SystemStats | null>(null);
 
   const load = useCallback(async () => {

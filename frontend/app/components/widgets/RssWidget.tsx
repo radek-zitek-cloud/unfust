@@ -11,8 +11,9 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { useCallback, useEffect, useState } from "react";
 import { type RssItem, addRssFeed, getRssItems } from "~/lib/api";
+import type { WidgetComponentProps } from "./index";
 
-export function RssWidget() {
+export function RssWidget({ config: _config }: WidgetComponentProps) {
   const [items, setItems] = useState<RssItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [opened, { open, close }] = useDisclosure(false);
