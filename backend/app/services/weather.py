@@ -21,17 +21,29 @@ async def fetch_weather(city: str, units: str = "metric") -> dict:
         raise ValueError("OpenWeatherMap API key not configured")
 
     async with httpx.AsyncClient() as client:
-        resp = await client.get(
-            "https://api.openweathermap.org/data/2.5/weather",
-            params={
-                "q": city,
-                "units": units,
-                "appid": settings.openweathermap_api_key,
-            },
-            timeout=10,
-        )
-        resp.raise_for_status()
-        data = resp.json()
+        try:
+            resp = await client.get(
+                "https://api.openweathermap.org/data/2.5/weather",
+                params={
+                    "q": city,
+                    "units": units,
+                    "appid": settings.openweathermap_api_key,
+                },
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                raise ValueError(f"City '{city}' not found") from e
+            elif e.response.status_code == 401:
+                raise ValueError("Invalid API key") from e
+            else:
+                raise ValueError(f"Weather service error: {e.response.status_code}") from e
+        except httpx.TimeoutException as e:
+            raise ValueError("Weather service timeout") from e
+        except httpx.RequestError as e:
+            raise ValueError(f"Failed to connect to weather service: {str(e)}") from e
 
     result = {
         "city": data["name"],
