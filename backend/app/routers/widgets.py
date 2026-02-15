@@ -46,8 +46,9 @@ async def get_weather(
     try:
         data = await fetch_weather(city, units)
     except ValueError as e:
+        # Weather service provides user-friendly error messages
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e)
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         )
     except Exception:
         raise HTTPException(
