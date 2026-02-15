@@ -27,9 +27,9 @@ function AppIcon({ size }: { size: number }) {
     >
       <defs>
         <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#09ADC3" />
-          <stop offset="50%" stopColor="#128797" />
-          <stop offset="100%" stopColor="#0098a8" />
+          <stop offset="0%" stopColor="#8570ff" />
+          <stop offset="50%" stopColor="#6448f5" />
+          <stop offset="100%" stopColor="#4530c8" />
         </linearGradient>
       </defs>
       <rect
@@ -104,7 +104,7 @@ export function Logo({ size = "md" }: LogoProps) {
           fontSize: s.fontSize,
           letterSpacing: s.letterSpacing,
           background:
-            "linear-gradient(135deg, #09ADC3 0%, #128797 50%, #0098a8 100%)",
+            "linear-gradient(135deg, #8570ff 0%, #6448f5 50%, #4530c8 100%)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           backgroundClip: "text",
