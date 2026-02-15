@@ -17,6 +17,7 @@ services:
       - ./backend/alembic:/srv/backend/alembic
       - ./data:/srv/backend/data
       - ./.env:/srv/backend/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - unfust-net
 
