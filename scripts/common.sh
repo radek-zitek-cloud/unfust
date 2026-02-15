@@ -65,6 +65,15 @@ check_branch_main() {
     fi
 }
 
+check_branch_main_or_release() {
+    local current_branch=$(git branch --show-current)
+    if [ "${current_branch}" != "main" ] && [[ ! "${current_branch}" =~ ^release/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        log_error "Must be on 'main' or 'release/vX.Y.Z' branch. Current: ${current_branch}"
+        exit 1
+    fi
+    echo "${current_branch}"
+}
+
 check_github_auth() {
     if ! gh auth status &>/dev/null; then
         log_error "Not authenticated with GitHub CLI. Run: gh auth login"
