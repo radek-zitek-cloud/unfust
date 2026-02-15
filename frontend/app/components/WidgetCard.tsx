@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Paper, Text } from "@mantine/core";
+import { ActionIcon, Group, Paper, Text, useComputedColorScheme } from "@mantine/core";
 import type { ReactNode } from "react";
 
 function IconSettings({ size = 16 }: { size?: number }) {
@@ -50,6 +50,8 @@ export function WidgetCard({
   onSettings,
   onRemove,
 }: WidgetCardProps) {
+  const scheme = useComputedColorScheme("light");
+  const isDark = scheme === "dark";
   return (
     <Paper
       withBorder
@@ -63,12 +65,19 @@ export function WidgetCard({
         px="sm"
         py={6}
         style={{
-          borderBottom: "1px solid var(--mantine-color-default-border)",
+          borderBottom: "1px solid var(--app-border)",
+          backgroundColor: isDark ? "var(--mantine-color-dark-7)" : "var(--mantine-color-gray-1)",
           flexShrink: 0,
           cursor: "grab",
         }}
       >
-        <Text size="xs" fw={600} tt="uppercase" c="dimmed" ff="monospace">
+        <Text
+          size="xs"
+          fw={600}
+          tt="uppercase"
+          c="dimmed"
+          style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: "0.06em" }}
+        >
           {title}
         </Text>
         <Group gap={4}>
@@ -78,6 +87,7 @@ export function WidgetCard({
               size="xs"
               color="gray"
               onClick={onSettings}
+              style={{ transition: "color var(--transition-standard)" }}
             >
               <IconSettings size={14} />
             </ActionIcon>
@@ -88,6 +98,7 @@ export function WidgetCard({
               size="xs"
               color="gray"
               onClick={onRemove}
+              style={{ transition: "color var(--transition-standard)" }}
             >
               <IconX size={14} />
             </ActionIcon>

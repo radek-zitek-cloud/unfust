@@ -11,6 +11,7 @@ import {
   NavLink,
   Text,
   Tooltip,
+  Transition,
   useComputedColorScheme,
   useMantineColorScheme,
 } from "@mantine/core";
@@ -80,9 +81,18 @@ function IconHabits({ size = 18 }: { size?: number }) {
   );
 }
 
+function IconChevronRight({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  );
+}
+
 export default function DashboardLayout() {
   const { user, isLoading, logout } = useAuth();
   const [opened, { toggle, close }] = useDisclosure();
+  const [navExpanded, setNavExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -132,7 +142,7 @@ export default function DashboardLayout() {
     <AppShell
       header={{ height: 56 }}
       navbar={{
-        width: 240,
+        width: 81,
         breakpoint: "sm",
         collapsed: { mobile: !opened },
       }}
@@ -141,7 +151,7 @@ export default function DashboardLayout() {
     >
       <AppShell.Header
         style={{
-          borderBottom: "1px solid var(--mantine-color-default-border)",
+          borderBottom: "1px solid var(--app-border)",
         }}
       >
         <Group h="100%" px="md" justify="space-between">
@@ -174,7 +184,7 @@ export default function DashboardLayout() {
                   <Avatar
                     size="sm"
                     radius="xl"
-                    color="teal"
+                    color="accent"
                     variant="filled"
                     style={{ cursor: "pointer" }}
                   >
@@ -203,42 +213,124 @@ export default function DashboardLayout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="sm">
-        <AppShell.Section grow>
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              component={Link}
-              to={item.to}
-              label={item.label}
-              leftSection={item.icon}
-              active={location.pathname === item.to}
-              onClick={close}
-              style={{ borderRadius: "var(--mantine-radius-md)" }}
-              mb={2}
-            />
-          ))}
-        </AppShell.Section>
+      <AppShell.Navbar style={{ borderRight: "1px dashed var(--app-border)" }}>
+        {/* Mini strip — always visible, 81px wide */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            height: "100%",
+            paddingTop: 12,
+            paddingBottom: 12,
+          }}
+        >
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, width: "100%" }}>
+            {navItems.map((item) => {
+              const active = location.pathname === item.to;
+              return (
+                <Tooltip
+                  key={item.to}
+                  label={item.label}
+                  position="right"
+                  disabled={navExpanded}
+                >
+                  <ActionIcon
+                    component={Link}
+                    to={item.to}
+                    variant={active ? "light" : "subtle"}
+                    color={active ? "accent" : "gray"}
+                    size="xl"
+                    style={{ width: "100%", borderRadius: "var(--mantine-radius-md)" }}
+                    onClick={close}
+                  >
+                    {item.icon}
+                  </ActionIcon>
+                </Tooltip>
+              );
+            })}
+          </div>
 
-        <Divider my="xs" />
+          {/* Chevron toggle */}
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="md"
+            onClick={() => setNavExpanded((v) => !v)}
+            aria-label={navExpanded ? "Collapse sidebar" : "Expand sidebar"}
+            style={{
+              transition: "transform var(--transition-standard)",
+              transform: navExpanded ? "rotate(180deg)" : "rotate(0deg)",
+            }}
+          >
+            <IconChevronRight size={14} />
+          </ActionIcon>
+        </div>
 
-        <AppShell.Section>
-          <Group gap="xs" px="xs" pb="xs">
-            <Badge
-              size="xs"
-              variant="light"
-              color={user.is_admin ? "teal" : "gray"}
-            >
-              {user.is_admin ? "Admin" : "User"}
-            </Badge>
-            {health && (
-              <Badge size="xs" variant="dot" color="dimmed">
-                v{health.version}
-              </Badge>
-            )}
-          </Group>
-        </AppShell.Section>
       </AppShell.Navbar>
+
+      {/* Overlay panel — fixed position, escapes AppShell grid */}
+      <Transition
+        mounted={navExpanded}
+        transition="slide-right"
+        duration={150}
+        timingFunction="cubic-bezier(0.4, 0, 0.2, 1)"
+      >
+        {(styles) => (
+          <div
+            style={{
+              ...styles,
+              position: "fixed",
+              left: 81,
+              top: 56,
+              bottom: 32,
+              width: 217,
+              backgroundColor: "var(--mantine-color-body)",
+              boxShadow: "4px 0 16px rgba(0,0,0,0.08)",
+              zIndex: 200,
+              display: "flex",
+              flexDirection: "column",
+              paddingTop: 12,
+              paddingBottom: 12,
+              paddingLeft: 8,
+              paddingRight: 8,
+              borderRight: "1px solid var(--app-border)",
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  component={Link}
+                  to={item.to}
+                  label={item.label}
+                  leftSection={item.icon}
+                  active={location.pathname === item.to}
+                  onClick={() => { close(); setNavExpanded(false); }}
+                  mb={2}
+                />
+              ))}
+            </div>
+
+            <Divider my="xs" />
+
+            <Group gap="xs" px="xs" pb="xs">
+              <Badge
+                size="xs"
+                variant="light"
+                color={user.is_admin ? "accent" : "gray"}
+              >
+                {user.is_admin ? "Admin" : "User"}
+              </Badge>
+              {health && (
+                <Badge size="xs" variant="dot" color="dimmed">
+                  v{health.version}
+                </Badge>
+              )}
+            </Group>
+          </div>
+        )}
+      </Transition>
 
       <AppShell.Main>
         <Outlet />
@@ -246,7 +338,7 @@ export default function DashboardLayout() {
 
       <AppShell.Footer
         style={{
-          borderTop: "1px solid var(--mantine-color-default-border)",
+          borderTop: "1px solid var(--app-border)",
         }}
       >
         <Group justify="space-between" px="md" h="100%">
@@ -257,10 +349,10 @@ export default function DashboardLayout() {
                 height: 6,
                 borderRadius: "50%",
                 backgroundColor: backendOk
-                  ? "var(--mantine-color-teal-6)"
+                  ? "var(--mantine-color-accent-6)"
                   : "var(--mantine-color-red-6)",
                 boxShadow: backendOk
-                  ? "0 0 6px var(--mantine-color-teal-6)"
+                  ? "0 0 6px var(--mantine-color-accent-6)"
                   : "0 0 6px var(--mantine-color-red-6)",
               }}
             />
