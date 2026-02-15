@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
-from app.schemas.widget import WeatherResponse, WidgetLayoutResponse, WidgetLayoutUpdateRequest
+from app.schemas.widget import SystemStatsResponse, WeatherResponse, WidgetLayoutResponse, WidgetLayoutUpdateRequest
+from app.services.system import get_container_stats, get_host_stats
 from app.services.weather import fetch_weather
 from app.services.widget import WidgetLayoutService
 
@@ -54,3 +55,12 @@ async def get_weather(
             detail="Weather service unavailable",
         )
     return WeatherResponse(**data)
+
+
+@router.get("/system", response_model=SystemStatsResponse)
+async def get_system_stats(
+    _user: User = Depends(get_current_user),
+):
+    stats = get_host_stats()
+    stats["containers"] = get_container_stats()
+    return SystemStatsResponse(**stats)
