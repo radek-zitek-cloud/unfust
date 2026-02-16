@@ -52,12 +52,25 @@ export function WidgetCard({
 }: WidgetCardProps) {
   const scheme = useComputedColorScheme("light");
   const isDark = scheme === "dark";
+  
+  // Card background - between header (gray-1/dark-7) and page background
+  const cardBg = isDark ? "var(--mantine-color-dark-8)" : "var(--mantine-color-gray-0)";
+  const shadow = isDark 
+    ? "0 1px 3px rgba(0,0,0,0.3)" 
+    : "0 1px 3px rgba(0,0,0,0.08)";
+  
   return (
     <Paper
       withBorder
       radius="md"
       h="100%"
-      style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}
+      bg={cardBg}
+      style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        overflow: "hidden",
+        boxShadow: shadow,
+      }}
     >
       <Group
         className="widget-drag-handle"

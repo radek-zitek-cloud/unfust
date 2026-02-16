@@ -66,9 +66,7 @@ async def test_delete_feed(app_client: AsyncClient):
         headers=headers,
     )
     feed_id = resp.json()["id"]
-    resp = await app_client.delete(
-        f"/api/rss/feeds/{feed_id}", headers=headers
-    )
+    resp = await app_client.delete(f"/api/rss/feeds/{feed_id}", headers=headers)
     assert resp.status_code == 204
 
     resp = await app_client.get("/api/rss/feeds", headers=headers)

@@ -2,6 +2,7 @@ import {
   Button,
   Divider,
   Grid,
+  Group,
   Paper,
   PasswordInput,
   Stack,
@@ -9,11 +10,80 @@ import {
   TextInput,
   Textarea,
   Title,
+  useComputedColorScheme,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useAuth } from "~/lib/auth";
 import { changePassword, updateProfile } from "~/lib/api";
+
+interface ProfileCardProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+function ProfileCard({ title, children }: ProfileCardProps) {
+  const scheme = useComputedColorScheme("light");
+  const isDark = scheme === "dark";
+
+  // Card background - between header (gray-1/dark-7) and page background
+  const cardBg = isDark
+    ? "var(--mantine-color-dark-8)"
+    : "var(--mantine-color-gray-0)";
+  const shadow = isDark
+    ? "0 1px 3px rgba(0,0,0,0.3)"
+    : "0 1px 3px rgba(0,0,0,0.08)";
+  const headerBg = isDark
+    ? "var(--mantine-color-dark-7)"
+    : "var(--mantine-color-gray-1)";
+
+  return (
+    <Paper
+      withBorder
+      radius="md"
+      h="100%"
+      bg={cardBg}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        boxShadow: shadow,
+      }}
+    >
+      {/* Header */}
+      <Group
+        px="sm"
+        py={6}
+        style={{
+          borderBottom: "1px solid var(--app-border)",
+          backgroundColor: headerBg,
+          flexShrink: 0,
+        }}
+      >
+        <Text
+          size="xs"
+          fw={600}
+          tt="uppercase"
+          c="dimmed"
+          style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: "0.06em" }}
+        >
+          {title}
+        </Text>
+      </Group>
+
+      {/* Content */}
+      <div
+        style={{
+          flex: 1,
+          padding: "var(--mantine-spacing-md)",
+          overflow: "auto",
+        }}
+      >
+        {children}
+      </div>
+    </Paper>
+  );
+}
 
 export default function ProfilePage() {
   const { user, refreshUser } = useAuth();
@@ -95,10 +165,7 @@ export default function ProfilePage() {
 
       <Grid gutter="xl">
         <Grid.Col span={{ base: 12, md: 7 }}>
-          <Paper withBorder p="lg" radius="md">
-            <Text fw={600} mb="md">
-              Personal information
-            </Text>
+          <ProfileCard title="Personal information">
             <form onSubmit={profileForm.onSubmit(handleProfileSubmit)}>
               <Stack gap="md">
                 <TextInput
@@ -141,14 +208,11 @@ export default function ProfilePage() {
                 </Button>
               </Stack>
             </form>
-          </Paper>
+          </ProfileCard>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 5 }}>
-          <Paper withBorder p="lg" radius="md">
-            <Text fw={600} mb="md">
-              Change password
-            </Text>
+          <ProfileCard title="Change password">
             <form onSubmit={passwordForm.onSubmit(handlePasswordSubmit)}>
               <Stack gap="md">
                 <PasswordInput
@@ -173,7 +237,7 @@ export default function ProfilePage() {
                 </Button>
               </Stack>
             </form>
-          </Paper>
+          </ProfileCard>
         </Grid.Col>
       </Grid>
     </>

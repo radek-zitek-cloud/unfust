@@ -84,9 +84,7 @@ async def test_delete_bookmark(app_client: AsyncClient):
         headers=headers,
     )
     bookmark_id = resp.json()["id"]
-    resp = await app_client.delete(
-        f"/api/bookmarks/{bookmark_id}", headers=headers
-    )
+    resp = await app_client.delete(f"/api/bookmarks/{bookmark_id}", headers=headers)
     assert resp.status_code == 204
 
     resp = await app_client.get("/api/bookmarks", headers=headers)

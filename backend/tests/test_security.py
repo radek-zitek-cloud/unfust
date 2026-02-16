@@ -26,9 +26,7 @@ def test_create_and_decode_access_token():
 
 
 def test_expired_access_token():
-    token = create_access_token(
-        subject="user-123", expires_delta=timedelta(seconds=-1)
-    )
+    token = create_access_token(subject="user-123", expires_delta=timedelta(seconds=-1))
     assert decode_access_token(token) is None
 
 

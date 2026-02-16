@@ -216,6 +216,9 @@ export async function saveWidgetLayout(
 
 export interface WeatherData {
   city: string;
+  country: string;
+  lat: number;
+  lon: number;
   temp: number;
   feels_like: number;
   humidity: number;
@@ -313,6 +316,38 @@ export async function deleteRssFeed(id: string): Promise<void> {
 
 export async function getRssItems(): Promise<RssItem[]> {
   const resp = await apiClient("/api/rss/items");
+  return resp.json();
+}
+
+export async function refreshRssFeeds(): Promise<{ refreshed: number }> {
+  const resp = await apiClient("/api/rss/refresh", { method: "POST" });
+  return resp.json();
+}
+
+// --- Weather Forecast ---
+
+export interface ForecastItem {
+  date: string;
+  temp: number;
+  description: string;
+  icon: string;
+}
+
+export interface ForecastResponse {
+  city: string;
+  country: string;
+  lat: number;
+  lon: number;
+  forecasts: ForecastItem[];
+}
+
+export async function fetchForecast(
+  city: string,
+  units = "metric"
+): Promise<ForecastResponse> {
+  const resp = await apiClient(
+    `/api/widgets/forecast?city=${encodeURIComponent(city)}&units=${units}`
+  );
   return resp.json();
 }
 

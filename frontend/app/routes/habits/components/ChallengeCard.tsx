@@ -1,4 +1,13 @@
-import { Badge, Card, Group, Progress, Stack, Text, Tooltip } from "@mantine/core";
+import { 
+  Badge, 
+  Card, 
+  Group, 
+  Progress, 
+  Stack, 
+  Text, 
+  Tooltip,
+  useComputedColorScheme,
+} from "@mantine/core";
 import type { HabitChallengeProgress } from "~/lib/habits-api";
 
 interface ChallengeCardProps {
@@ -13,6 +22,15 @@ function getDaysRemaining(endsAt: string): number {
 }
 
 export function ChallengeCard({ progress }: ChallengeCardProps) {
+  const scheme = useComputedColorScheme("light");
+  const isDark = scheme === "dark";
+  
+  // Card background - between header (gray-1/dark-7) and page background
+  const cardBg = isDark ? "var(--mantine-color-dark-8)" : "var(--mantine-color-gray-0)";
+  const shadow = isDark 
+    ? "0 1px 3px rgba(0,0,0,0.3)" 
+    : "0 1px 3px rgba(0,0,0,0.08)";
+  
   const challenge = progress.challenge;
   const percent = Math.min(
     (progress.current_value / challenge.target) * 100,
@@ -22,7 +40,13 @@ export function ChallengeCard({ progress }: ChallengeCardProps) {
   const isCompleted = !!progress.completed_at;
 
   return (
-    <Card withBorder padding="md" radius="md">
+    <Card 
+      withBorder 
+      padding="md" 
+      radius="md"
+      bg={cardBg}
+      style={{ boxShadow: shadow }}
+    >
       <Stack gap="sm">
         <Group justify="space-between" wrap="nowrap">
           <div>

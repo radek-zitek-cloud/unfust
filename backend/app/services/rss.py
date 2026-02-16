@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 
 import feedparser
 import httpx
@@ -9,6 +10,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.widget import RssFeed
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_date(date_str: str | None) -> datetime | None:
+    """Parse RSS date string to datetime object."""
+    if not date_str:
+        return None
+    try:
+        # Try RFC 2822 format first (most common in RSS)
+        return parsedate_to_datetime(date_str)
+    except Exception:
+        try:
+            # Try ISO format
+            return datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+        except Exception:
+            return None
 
 
 class RssService:
@@ -35,9 +51,7 @@ class RssService:
 
     async def delete_feed(self, user_id: str, feed_id: str) -> bool:
         result = await self.db.execute(
-            select(RssFeed).where(
-                RssFeed.id == feed_id, RssFeed.user_id == user_id
-            )
+            select(RssFeed).where(RssFeed.id == feed_id, RssFeed.user_id == user_id)
         )
         feed = result.scalar_one_or_none()
         if feed is None:
@@ -54,7 +68,10 @@ class RssService:
                 for item in feed.cached_items:
                     item["source"] = feed.title or feed.url
                     items.append(item)
-        items.sort(key=lambda x: x.get("published", ""), reverse=True)
+        # Sort by published_iso (newest first), fallback to published string if iso not available
+        items.sort(
+            key=lambda x: x.get("published_iso", x.get("published", "")), reverse=True
+        )
         return items
 
     async def _refresh_feed(self, feed: RssFeed) -> None:
@@ -66,14 +83,23 @@ class RssService:
         if parsed.feed.get("title"):
             feed.title = parsed.feed.title
 
-        feed.cached_items = [
-            {
-                "title": entry.get("title", ""),
-                "link": entry.get("link", ""),
-                "published": entry.get("published", ""),
-            }
-            for entry in parsed.entries[:50]
-        ]
+        items = []
+        for entry in parsed.entries[:50]:
+            # Parse the published date and store as ISO format for sorting
+            published_str = entry.get("published", "")
+            published_dt = _parse_date(published_str)
+            published_iso = published_dt.isoformat() if published_dt else ""
+
+            items.append(
+                {
+                    "title": entry.get("title", ""),
+                    "link": entry.get("link", ""),
+                    "published": published_str,  # Original format for display
+                    "published_iso": published_iso,  # ISO format for sorting
+                }
+            )
+
+        feed.cached_items = items
         feed.last_fetched_at = datetime.now(timezone.utc)
         await self.db.commit()
 

@@ -176,85 +176,81 @@ export default function HabitsPage() {
         </Button>
       </Group>
 
-      <Grid gutter="xl">
-        {/* Main Habits Column */}
-        <Grid.Col span={{ base: 12, md: 8 }}>
-          <Stack gap="lg">
-            {/* Category Tabs */}
-            {categories.length > 0 && (
-              <Tabs value={activeTab} onChange={setActiveTab}>
-                <Tabs.List>
-                  <Tabs.Tab value="all">All</Tabs.Tab>
-                  {categories.map((cat) => (
-                    <Tabs.Tab key={cat} value={cat}>
-                      {cat}
-                    </Tabs.Tab>
-                  ))}
-                </Tabs.List>
-              </Tabs>
-            )}
+      {/* Active Challenges */}
+      {challenges.length > 0 && (
+        <>
+          <div>
+            <Text fw={600} mb="md">
+              Active Challenges
+            </Text>
+            <Grid gutter="md">
+              {challenges.slice(0, 3).map((progress) => (
+                <Grid.Col key={progress.id} span={{ base: 12, sm: 6, md: 4 }}>
+                  <ChallengeCard progress={progress} />
+                </Grid.Col>
+              ))}
+            </Grid>
+          </div>
+          <Divider my="xl" />
+        </>
+      )}
 
-            {/* Habits Grid */}
-            {filteredHabits.length === 0 ? (
-              <Stack align="center" justify="center" h={300}>
-                <Text c="dimmed">
-                  {activeTab === "all"
-                    ? "No habits yet. Create your first one!"
-                    : "No habits in this category."}
-                </Text>
-                <Button onClick={openCreateForm} w="fit-content">
-                  Create habit
-                </Button>
-              </Stack>
-            ) : (
-              <Grid>
-                {filteredHabits.map((habit) => (
-                  <Grid.Col
-                    key={habit.id}
-                    span={{ base: 12, sm: 6, lg: 4 }}
-                  >
-                    <HabitCard
-                      habit={habit}
-                      onCheckin={() => handleCheckin(habit)}
-                      onEdit={() => openEditForm(habit)}
-                      onClick={() => openDetail(habit)}
-                    />
-                  </Grid.Col>
-                ))}
-              </Grid>
-            )}
+      {/* Habits Section - Full Width */}
+      <Stack gap="lg">
+        {/* Category Tabs */}
+        {categories.length > 0 && (
+          <Tabs value={activeTab} onChange={setActiveTab}>
+            <Tabs.List>
+              <Tabs.Tab value="all">All</Tabs.Tab>
+              {categories.map((cat) => (
+                <Tabs.Tab key={cat} value={cat}>
+                  {cat}
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs>
+        )}
+
+        {/* Habits Grid */}
+        {filteredHabits.length === 0 ? (
+          <Stack align="center" justify="center" h={300}>
+            <Text c="dimmed">
+              {activeTab === "all"
+                ? "No habits yet. Create your first one!"
+                : "No habits in this category."}
+            </Text>
+            <Button onClick={openCreateForm} w="fit-content">
+              Create habit
+            </Button>
           </Stack>
-        </Grid.Col>
+        ) : (
+          <Grid>
+            {filteredHabits.map((habit) => (
+              <Grid.Col
+                key={habit.id}
+                span={{ base: 12, sm: 6, md: 4, lg: 3 }}
+              >
+                <HabitCard
+                  habit={habit}
+                  onCheckin={() => handleCheckin(habit)}
+                  onEdit={() => openEditForm(habit)}
+                  onClick={() => openDetail(habit)}
+                />
+              </Grid.Col>
+            ))}
+          </Grid>
+        )}
+      </Stack>
 
-        {/* Sidebar Column */}
-        <Grid.Col span={{ base: 12, md: 4 }}>
-          <Stack gap="xl">
-            {/* Active Challenges */}
-            {challenges.length > 0 && (
-              <div>
-                <Text fw={600} mb="md">
-                  Active Challenges
-                </Text>
-                <Stack gap="sm">
-                  {challenges.slice(0, 3).map((progress) => (
-                    <ChallengeCard key={progress.id} progress={progress} />
-                  ))}
-                </Stack>
-              </div>
-            )}
+      <Divider my="xl" />
 
-            <Divider />
-
-            {/* Badge Collection */}
-            <div>
-              <Text fw={600} mb="md">
-                Badges
-              </Text>
-              <BadgeCollection badges={badges} />
-            </div>
-          </Stack>
-        </Grid.Col>
-      </Grid>
+      {/* Badges Section - Bottom of page */}
+      <div>
+        <Text fw={600} mb="md" size="lg">
+          Badges
+        </Text>
+        <BadgeCollection badges={badges} />
+      </div>
 
       {/* Form Modal */}
       <HabitForm

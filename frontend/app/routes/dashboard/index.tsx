@@ -22,9 +22,9 @@ export default function DashboardHome() {
   const load = useCallback(async () => {
     try {
       const layout = await getWidgetLayout();
-      setWidgets(layout.widgets);
+      setWidgets(layout.widgets ?? []);
     } catch {
-      /* ignore */
+      setWidgets([]);
     }
     setLoading(false);
   }, []);

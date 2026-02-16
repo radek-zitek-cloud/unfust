@@ -84,7 +84,9 @@ async def get_habit(
     """Get a specific habit."""
     habit = await service.get_habit(habit_id, user.id)
     if not habit:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found"
+        )
     return habit
 
 
@@ -98,7 +100,9 @@ async def update_habit(
     """Update a habit."""
     habit = await service.update_habit(habit_id, user.id, data)
     if not habit:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found"
+        )
     return habit
 
 
@@ -111,10 +115,16 @@ async def delete_habit(
     """Archive (soft delete) a habit."""
     success = await service.delete_habit(habit_id, user.id)
     if not success:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found"
+        )
 
 
-@router.post("/{habit_id}/logs", response_model=HabitLogResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/{habit_id}/logs",
+    response_model=HabitLogResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def log_completion(
     habit_id: str,
     data: HabitLogCreate,
@@ -122,11 +132,11 @@ async def log_completion(
     service: HabitService = Depends(get_habit_service),
 ):
     """Log a habit completion (check-in)."""
-    log = await service.log_completion(
-        habit_id, user.id, data.logged_date, data.notes
-    )
+    log = await service.log_completion(habit_id, user.id, data.logged_date, data.notes)
     if not log:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found"
+        )
     return log
 
 
@@ -153,4 +163,6 @@ async def undo_log(
     """Delete a log entry (undo check-in)."""
     success = await service.undo_log(log_id, user.id)
     if not success:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Log not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Log not found"
+        )

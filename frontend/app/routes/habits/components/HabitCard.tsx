@@ -2,12 +2,13 @@ import {
   ActionIcon,
   Badge,
   Button,
-  Card,
   Group,
+  Paper,
   RingProgress,
   Stack,
   Text,
   Tooltip,
+  useComputedColorScheme,
 } from "@mantine/core";
 import type { Habit } from "~/lib/habits-api";
 
@@ -15,10 +16,11 @@ interface HabitCardProps {
   habit: Habit;
   onCheckin: () => void;
   onEdit: () => void;
-  onClick: () => void;
+  onClick?: () => void;
+  dragHandle?: boolean;
 }
 
-function IconEdit({ size = 16 }: { size?: number }) {
+function IconEdit({ size = 14 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -36,7 +38,7 @@ function IconEdit({ size = 16 }: { size?: number }) {
   );
 }
 
-function IconFlame({ size = 16 }: { size?: number }) {
+function IconFlame({ size = 14 }: { size?: number }) {
   return (
     <svg
       width={size}
@@ -53,7 +55,38 @@ function IconFlame({ size = 16 }: { size?: number }) {
   );
 }
 
-export function HabitCard({ habit, onCheckin, onEdit, onClick }: HabitCardProps) {
+function IconDrag({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="9" cy="12" r="1" />
+      <circle cx="9" cy="5" r="1" />
+      <circle cx="9" cy="19" r="1" />
+      <circle cx="15" cy="12" r="1" />
+      <circle cx="15" cy="5" r="1" />
+      <circle cx="15" cy="19" r="1" />
+    </svg>
+  );
+}
+
+export function HabitCard({
+  habit,
+  onCheckin,
+  onEdit,
+  onClick,
+  dragHandle = false,
+}: HabitCardProps) {
+  const scheme = useComputedColorScheme("light");
+  const isDark = scheme === "dark";
+
   const stats = habit.stats;
   const isComplete = stats?.is_complete_today ?? false;
   const todayCount = stats?.today_count ?? 0;
@@ -68,103 +101,145 @@ export function HabitCard({ habit, onCheckin, onEdit, onClick }: HabitCardProps)
     ringColor = "#fd7e14"; // orange - in progress
   }
 
+  // Card background - between header (gray-1/dark-7) and page background
+  const cardBg = isDark ? "var(--mantine-color-dark-8)" : "var(--mantine-color-gray-0)";
+  const shadow = isDark 
+    ? "0 1px 3px rgba(0,0,0,0.3)" 
+    : "0 1px 3px rgba(0,0,0,0.08)";
+
   return (
-    <Card
+    <Paper
       withBorder
-      padding="md"
       radius="md"
-      style={{
-        borderLeft: `4px solid ${habit.color}`,
-        cursor: "pointer",
+      h="100%"
+      bg={cardBg}
+      style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        overflow: "hidden",
+        boxShadow: shadow,
       }}
-      onClick={onClick}
     >
-      <Stack gap="xs">
-        {/* Header */}
-        <Group justify="space-between" wrap="nowrap">
-          <Group gap="xs" wrap="nowrap">
-            <Text size="xl">{habit.emoji}</Text>
-            <div>
-              <Text fw={600} size="sm" lineClamp={1}>
-                {habit.name}
-              </Text>
-              {habit.category && (
-                <Badge size="xs" variant="light" color="gray">
-                  {habit.category}
-                </Badge>
-              )}
-            </div>
-          </Group>
+      {/* Header - matching WidgetCard style */}
+      <Group
+        justify="space-between"
+        px="sm"
+        py={6}
+        style={{
+          borderBottom: "1px solid var(--app-border)",
+          backgroundColor: isDark
+            ? "var(--mantine-color-dark-7)"
+            : "var(--mantine-color-gray-1)",
+          flexShrink: 0,
+          cursor: dragHandle ? "grab" : "pointer",
+        }}
+        onClick={!dragHandle ? onClick : undefined}
+      >
+        <Group gap="xs">
+          {dragHandle && (
+            <Text size="xs" c="dimmed" className="habit-drag-handle">
+              <IconDrag />
+            </Text>
+          )}
+          <Text size="sm">{habit.emoji}</Text>
+          <Text
+            size="xs"
+            fw={600}
+            tt="uppercase"
+            c="dimmed"
+            style={{ fontFamily: '"DM Sans", sans-serif', letterSpacing: "0.06em" }}
+            lineClamp={1}
+          >
+            {habit.name}
+          </Text>
+        </Group>
+        <Group gap={4}>
+          {stats && stats.current_streak > 0 && (
+            <Tooltip label="Current streak">
+              <Group gap={2} c="orange">
+                <IconFlame size={12} />
+                <Text size="xs" fw={600}>
+                  {stats.current_streak}
+                </Text>
+              </Group>
+            </Tooltip>
+          )}
           <ActionIcon
             variant="subtle"
-            size="sm"
+            size="xs"
             color="gray"
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
+            style={{ transition: "color var(--transition-standard)" }}
           >
-            <IconEdit />
+            <IconEdit size={14} />
           </ActionIcon>
         </Group>
+      </Group>
 
-        {/* Description */}
-        {habit.description && (
-          <Text size="xs" c="dimmed" lineClamp={1}>
-            {habit.description}
-          </Text>
-        )}
+      {/* Content */}
+      <div
+        style={{
+          flex: 1,
+          padding: "var(--mantine-spacing-sm)",
+          overflow: "auto",
+        }}
+      >
+        <Stack gap="sm">
+          {/* Description */}
+          {habit.description && (
+            <Text size="xs" c="dimmed" lineClamp={2}>
+              {habit.description}
+            </Text>
+          )}
 
-        {/* Progress Section */}
-        <Group justify="space-between" align="center">
-          <RingProgress
-            size={60}
-            thickness={6}
-            roundCaps
-            sections={[{ value: progress, color: ringColor }]}
-            label={
-              <Text size="xs" ta="center" fw={600}>
-                {todayCount}/{targetCount}
-              </Text>
-            }
-          />
+          {/* Progress Section */}
+          <Group justify="space-between" align="center">
+            <RingProgress
+              size={60}
+              thickness={6}
+              roundCaps
+              sections={[{ value: progress, color: ringColor }]}
+              label={
+                <Text size="xs" ta="center" fw={600}>
+                  {todayCount}/{targetCount}
+                </Text>
+              }
+            />
 
-          <Stack gap={2} align="flex-end">
-            {/* Streak */}
-            {stats && stats.current_streak > 0 && (
-              <Tooltip label="Current streak">
-                <Group gap={4} c="orange">
-                  <IconFlame size={14} />
-                  <Text size="sm" fw={600}>
-                    {stats.current_streak}
-                  </Text>
-                </Group>
-              </Tooltip>
-            )}
+            <Stack gap={0} align="flex-end">
+              {/* Completion Rate */}
+              {stats && (
+                <Text size="xs" c="dimmed">
+                  {stats.completion_rate}% (30d)
+                </Text>
+              )}
+              {/* Category badge */}
+              {habit.category && (
+                <Badge size="xs" variant="light" color="gray">
+                  {habit.category}
+                </Badge>
+              )}
+            </Stack>
+          </Group>
 
-            {/* Completion Rate */}
-            {stats && (
-              <Text size="xs" c="dimmed">
-                {stats.completion_rate}% (30d)
-              </Text>
-            )}
-          </Stack>
-        </Group>
-
-        {/* Check-in Button */}
-        <Button
-          variant={isComplete ? "light" : "filled"}
-          color={isComplete ? "teal" : undefined}
-          w="fit-content"
-          onClick={(e) => {
-            e.stopPropagation();
-            onCheckin();
-          }}
-          disabled={isComplete}
-        >
-          {isComplete ? "Done!" : "Check in"}
-        </Button>
-      </Stack>
-    </Card>
+          {/* Check-in Button */}
+          <Button
+            variant={isComplete ? "light" : "filled"}
+            color={isComplete ? "teal" : undefined}
+            w="fit-content"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCheckin();
+            }}
+            disabled={isComplete}
+          >
+            {isComplete ? "Done!" : "Check in"}
+          </Button>
+        </Stack>
+      </div>
+    </Paper>
   );
 }

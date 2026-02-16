@@ -1,4 +1,4 @@
-import { Card, Grid, Text, Tooltip } from "@mantine/core";
+import { Card, Grid, Stack, Text, Tooltip, useComputedColorScheme } from "@mantine/core";
 import type { BadgeType, HabitBadge } from "~/lib/habits-api";
 
 interface BadgeCollectionProps {
@@ -51,6 +51,15 @@ const ALL_BADGES: BadgeType[] = [
 ];
 
 export function BadgeCollection({ badges }: BadgeCollectionProps) {
+  const scheme = useComputedColorScheme("light");
+  const isDark = scheme === "dark";
+  
+  // Card background - between header (gray-1/dark-7) and page background
+  const cardBg = isDark ? "var(--mantine-color-dark-8)" : "var(--mantine-color-gray-0)";
+  const shadow = isDark 
+    ? "0 1px 3px rgba(0,0,0,0.3)" 
+    : "0 1px 3px rgba(0,0,0,0.08)";
+  
   const earnedTypes = new Set(badges.map((b) => b.badge_type));
 
   return (
@@ -61,7 +70,7 @@ export function BadgeCollection({ badges }: BadgeCollectionProps) {
         const earnedBadge = badges.find((b) => b.badge_type === type);
 
         return (
-          <Grid.Col key={type} span={{ base: 6, sm: 4, md: 3 }}>
+          <Grid.Col key={type} span={{ base: 6, sm: 4, md: 3, lg: 2 }}>
             <Tooltip
               label={
                 isEarned
@@ -73,19 +82,24 @@ export function BadgeCollection({ badges }: BadgeCollectionProps) {
             >
               <Card
                 withBorder
-                padding="sm"
+                padding="md"
                 radius="md"
+                h="100%"
+                bg={cardBg}
                 style={{
                   opacity: isEarned ? 1 : 0.4,
                   filter: isEarned ? "none" : "grayscale(100%)",
+                  boxShadow: shadow,
                 }}
               >
-                <Text size="xl" ta="center">
-                  {info.emoji}
-                </Text>
-                <Text size="xs" fw={600} ta="center" mt={4}>
-                  {info.name}
-                </Text>
+                <Stack gap="xs" align="center">
+                  <Text style={{ fontSize: 32, lineHeight: 1 }}>
+                    {info.emoji}
+                  </Text>
+                  <Text size="sm" fw={600} ta="center" lineClamp={2}>
+                    {info.name}
+                  </Text>
+                </Stack>
               </Card>
             </Tooltip>
           </Grid.Col>

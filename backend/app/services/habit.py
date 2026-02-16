@@ -120,7 +120,11 @@ class HabitService:
     # --- Logging ---
 
     async def log_completion(
-        self, habit_id: str, user_id: str, logged_date: date | None = None, notes: str | None = None
+        self,
+        habit_id: str,
+        user_id: str,
+        logged_date: date | None = None,
+        notes: str | None = None,
     ) -> HabitLog | None:
         """Log a habit completion."""
         habit = await self.get_habit(habit_id, user_id)
@@ -208,9 +212,7 @@ class HabitService:
         is_complete_today = today_count >= habit.target_count
 
         # Compute streaks
-        current_streak = self._compute_current_streak(
-            habit, logs_by_date, today
-        )
+        current_streak = self._compute_current_streak(habit, logs_by_date, today)
         longest_streak = self._compute_longest_streak(habit, logs_by_date)
 
         # Completion rate (last 30 days)
@@ -302,7 +304,9 @@ class HabitService:
 
         return streak
 
-    def _compute_longest_streak(self, habit: Habit, logs_by_date: dict[date, int]) -> int:
+    def _compute_longest_streak(
+        self, habit: Habit, logs_by_date: dict[date, int]
+    ) -> int:
         """Compute longest streak ever."""
         if not logs_by_date:
             return 0
@@ -467,9 +471,7 @@ class HabitService:
         elif challenge.challenge_type == ChallengeType.STREAK:
             # Max streak of any habit
             result = await self.db.execute(
-                select(Habit).where(
-                    Habit.user_id == user_id, Habit.is_active == True
-                )
+                select(Habit).where(Habit.user_id == user_id, Habit.is_active == True)
             )
             max_streak = 0
             for habit in result.scalars().all():
@@ -491,14 +493,14 @@ class HabitService:
         habits = await self.get_habits(user_id)
 
         # Get user XP and level
-        result = await self.db.execute(
-            select(User.habit_xp).where(User.id == user_id)
-        )
+        result = await self.db.execute(select(User.habit_xp).where(User.id == user_id))
         user_xp = result.scalar() or 0
         user_level = user_xp // 500 + 1
 
         # Count completed today
-        completed_today = sum(1 for h in habits if h.stats and h.stats.is_complete_today)
+        completed_today = sum(
+            1 for h in habits if h.stats and h.stats.is_complete_today
+        )
 
         # Best streak across all habits
         best_streak = max(

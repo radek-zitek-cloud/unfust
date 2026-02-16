@@ -83,6 +83,9 @@ class RssItemResponse(BaseModel):
 
 class WeatherResponse(BaseModel):
     city: str
+    country: str
+    lat: float
+    lon: float
     temp: float
     feels_like: float
     humidity: int

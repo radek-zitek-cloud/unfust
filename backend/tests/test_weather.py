@@ -9,9 +9,7 @@ from app.services.weather import _cache, fetch_weather
 
 @pytest.mark.asyncio
 async def test_weather_no_api_key(monkeypatch):
-    monkeypatch.setattr(
-        "app.services.weather.settings.openweathermap_api_key", ""
-    )
+    monkeypatch.setattr("app.services.weather.settings.openweathermap_api_key", "")
     _cache.clear()
     with pytest.raises(ValueError, match="API key not configured"):
         await fetch_weather("Prague")
@@ -24,6 +22,9 @@ async def test_weather_cache_hit():
         time.time(),
         {
             "city": "Prague",
+            "country": "CZ",
+            "lat": 50.08,
+            "lon": 14.43,
             "temp": 5.0,
             "feels_like": 2.0,
             "humidity": 80,
@@ -130,6 +131,8 @@ async def test_weather_successful_fetch(monkeypatch):
             200,
             json={
                 "name": "Prague",
+                "sys": {"country": "CZ"},
+                "coord": {"lat": 50.08, "lon": 14.43},
                 "main": {
                     "temp": 15.5,
                     "feels_like": 14.0,
@@ -143,6 +146,9 @@ async def test_weather_successful_fetch(monkeypatch):
 
     result = await fetch_weather("Prague")
     assert result["city"] == "Prague"
+    assert result["country"] == "CZ"
+    assert result["lat"] == 50.08
+    assert result["lon"] == 14.43
     assert result["temp"] == 15.5
     assert result["feels_like"] == 14.0
     assert result["humidity"] == 65

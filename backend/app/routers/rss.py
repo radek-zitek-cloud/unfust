@@ -51,3 +51,21 @@ async def get_items(
 ):
     service = RssService(db)
     return await service.get_items(user.id)
+
+
+@router.post("/refresh", status_code=status.HTTP_200_OK)
+async def refresh_feeds(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Refresh all RSS feeds for the current user."""
+    service = RssService(db)
+    feeds = await service.list_feeds(user.id)
+    refreshed_count = 0
+    for feed in feeds:
+        try:
+            await service._refresh_feed(feed)
+            refreshed_count += 1
+        except Exception:
+            pass
+    return {"refreshed": refreshed_count}
