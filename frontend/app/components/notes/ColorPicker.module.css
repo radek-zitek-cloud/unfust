@@ -1,0 +1,18 @@
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--mantine-spacing-xs);
+}
+
+.colorSwatch {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--mantine-radius-sm);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.colorSwatch:hover {
+  transform: scale(1.1);
+}

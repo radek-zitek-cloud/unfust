@@ -5,6 +5,7 @@ from app.models.habit import (
     HabitChallengeProgress,
     HabitLog,
 )
+from app.models.note import Note
 from app.models.user import Base, PasswordResetToken, RefreshToken, User
 from app.models.widget import Bookmark, DashboardLayout, RssFeed
 
@@ -21,4 +22,5 @@ __all__ = [
     "HabitBadge",
     "HabitChallenge",
     "HabitChallengeProgress",
+    "Note",
 ]

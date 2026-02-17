@@ -1,0 +1,12 @@
+.container {
+  position: relative;
+  min-height: calc(100vh - 200px);
+}
+
+.fab {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 100;
+  box-shadow: var(--mantine-shadow-lg);
+}

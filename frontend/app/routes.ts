@@ -10,6 +10,7 @@ export default [
     route("dashboard", "routes/dashboard/index.tsx"),
     route("dashboard/profile", "routes/dashboard/profile.tsx"),
     route("habits", "routes/habits/index.tsx"),
+    route("notes", "routes/dashboard/notes.tsx"),
   ]),
   route("*", "routes/catch-all.tsx"),
 ] satisfies RouteConfig;

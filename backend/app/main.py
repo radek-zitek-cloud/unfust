@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import __version__
 from app.config import settings
 from app.database import async_session_factory
-from app.routers import auth, bookmarks, habits, rss, users, widgets
+from app.routers import auth, bookmarks, habits, notes, rss, users, widgets
 from app.services.rss import RssService
 
 logger = logging.getLogger(__name__)
@@ -49,6 +49,7 @@ def create_app() -> FastAPI:
     app.include_router(bookmarks.router)
     app.include_router(rss.router)
     app.include_router(habits.router)
+    app.include_router(notes.router)
 
     @app.get("/api/health")
     async def health():

@@ -1,0 +1,104 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editing {
+  /* Toolbar appears without a box around the editor */
+}
+
+.toolbar {
+  padding: var(--mantine-spacing-xs);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+  background-color: var(--mantine-color-gray-0);
+  border-radius: var(--mantine-radius-sm) var(--mantine-radius-sm) 0 0;
+}
+
+.editorWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.editor {
+  padding: var(--mantine-spacing-xs) 0;
+  outline: none;
+  font-size: var(--mantine-font-size-sm);
+  line-height: 1.5;
+  color: var(--mantine-color-dark-8);
+  background: transparent;
+  min-height: 40px;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.editor::-webkit-scrollbar {
+  display: none;
+}
+
+.editorEditing {
+  padding: var(--mantine-spacing-sm);
+  overflow: auto;
+  min-height: 80px;
+}
+
+.editor:empty::before {
+  content: none;
+}
+
+.editor p {
+  margin: 0 0 var(--mantine-spacing-xs) 0;
+}
+
+.editor p:last-child {
+  margin-bottom: 0;
+}
+
+.editor ul,
+.editor ol {
+  margin: var(--mantine-spacing-xs) 0;
+  padding-left: var(--mantine-spacing-lg);
+}
+
+.editor li {
+  margin-bottom: var(--mantine-spacing-xs);
+}
+
+.editor pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-xs);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  margin: var(--mantine-spacing-xs) 0;
+}
+
+.editor a {
+  color: var(--mantine-color-blue-7);
+  text-decoration: underline;
+}
+
+.editor b,
+.editor strong {
+  font-weight: 600;
+}
+
+.editor i,
+.editor em {
+  font-style: italic;
+}
+
+.placeholder {
+  position: absolute;
+  top: var(--mantine-spacing-xs);
+  left: 0;
+  color: var(--mantine-color-gray-5);
+  pointer-events: none;
+  font-size: var(--mantine-font-size-sm);
+}
+
+.editorEditing + .placeholder {
+  left: var(--mantine-spacing-sm);
+  top: var(--mantine-spacing-sm);
+}

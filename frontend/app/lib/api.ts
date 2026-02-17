@@ -1,4 +1,7 @@
 let accessToken: string | null = null;
+let isRefreshing = false;
+let refreshSubscribers: ((token: string | null) => void)[] = [];
+let isLoggingOut = false;
 
 export function setAccessToken(token: string | null) {
   accessToken = token;
@@ -8,18 +11,69 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
+// Event emitter for auth failures
+let onAuthFailureCallback: (() => void) | null = null;
+
+export function setOnAuthFailure(callback: () => void) {
+  onAuthFailureCallback = callback;
+}
+
+function notifyAuthFailure() {
+  // Don't trigger auth failure during intentional logout
+  if (isLoggingOut) return;
+  if (onAuthFailureCallback) {
+    onAuthFailureCallback();
+  }
+}
+
+export function setIsLoggingOut(value: boolean) {
+  isLoggingOut = value;
+}
+
+function subscribeToRefresh(callback: (token: string | null) => void) {
+  refreshSubscribers.push(callback);
+}
+
+function notifySubscribers(token: string | null) {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+}
+
 async function refreshAccessToken(): Promise<string | null> {
+  // Prevent multiple concurrent refresh attempts
+  if (isRefreshing) {
+    return new Promise((resolve) => {
+      subscribeToRefresh((token) => resolve(token));
+    });
+  }
+
+  isRefreshing = true;
+
   try {
     const resp = await fetch("/api/auth/refresh", {
       method: "POST",
       credentials: "include",
     });
-    if (!resp.ok) return null;
+
+    if (!resp.ok) {
+      // Refresh failed - clear token and notify auth failure
+      setAccessToken(null);
+      notifyAuthFailure();
+      notifySubscribers(null);
+      return null;
+    }
+
     const data = await resp.json();
     setAccessToken(data.access_token);
+    notifySubscribers(data.access_token);
     return data.access_token;
   } catch {
+    setAccessToken(null);
+    notifyAuthFailure();
+    notifySubscribers(null);
     return null;
+  } finally {
+    isRefreshing = false;
   }
 }
 
@@ -37,12 +91,15 @@ export async function apiClient(
 
   let resp = await fetch(path, { ...options, headers, credentials: "include" });
 
-  // If 401, try refreshing the token once
-  if (resp.status === 401 && accessToken) {
+  // If 401, try refreshing the token
+  if (resp.status === 401) {
     const newToken = await refreshAccessToken();
     if (newToken) {
       headers.set("Authorization", `Bearer ${newToken}`);
       resp = await fetch(path, { ...options, headers, credentials: "include" });
+    } else {
+      // Refresh failed - this is an auth failure
+      notifyAuthFailure();
     }
   }
 
@@ -367,4 +424,82 @@ export interface SystemStats {
 export async function fetchSystemStats(): Promise<SystemStats> {
   const resp = await apiClient("/api/widgets/system");
   return resp.json();
+}
+
+// --- Notes ---
+
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  color: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  z_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NoteListResponse {
+  notes: Note[];
+}
+
+export async function getNotes(): Promise<Note[]> {
+  const resp = await apiClient("/api/notes");
+  const data: NoteListResponse = await resp.json();
+  return data.notes;
+}
+
+export async function createNote(data: {
+  title?: string;
+  content?: string;
+  color?: string;
+}): Promise<Note> {
+  const resp = await apiClient("/api/notes", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  return resp.json();
+}
+
+export async function updateNote(
+  id: string,
+  data: {
+    title?: string;
+    content?: string;
+    color?: string;
+  }
+): Promise<Note> {
+  const resp = await apiClient(`/api/notes/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+  return resp.json();
+}
+
+export async function updateNotePosition(
+  id: string,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+): Promise<Note> {
+  const resp = await apiClient(`/api/notes/${id}/position`, {
+    method: "PATCH",
+    body: JSON.stringify({ x, y, w, h }),
+  });
+  return resp.json();
+}
+
+export async function bringNoteToFront(id: string): Promise<Note> {
+  const resp = await apiClient(`/api/notes/${id}/bring-to-front`, {
+    method: "POST",
+  });
+  return resp.json();
+}
+
+export async function deleteNote(id: string): Promise<void> {
+  await apiClient(`/api/notes/${id}`, { method: "DELETE" });
 }

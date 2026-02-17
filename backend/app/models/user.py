@@ -43,6 +43,9 @@ class User(Base):
     habits: Mapped[list["Habit"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    notes_rel: Mapped[list["Note"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class RefreshToken(Base):
